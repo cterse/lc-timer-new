@@ -1,0 +1,16 @@
+{
+  "name": "lc-timer-new",
+  "version": "1.0.0",
+  "description": "Leetcode Timer using Typescript and React",
+  "main": "background.js",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "author": "Chinmay Terse",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jquery": "^3.3.38",
+    "jasmine": "^3.5.0",
+    "typescript": "^3.8.3"
+  }
+}
