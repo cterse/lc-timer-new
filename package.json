@@ -9,6 +9,7 @@
   "author": "Chinmay Terse",
   "license": "MIT",
   "devDependencies": {
+    "@types/chrome": "0.0.107",
     "@types/jquery": "^3.3.38",
     "jasmine": "^3.5.0",
     "typescript": "^3.8.3"

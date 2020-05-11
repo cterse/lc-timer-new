@@ -6,17 +6,12 @@ export class Problem {
     url: URL;
     sessionsList: Array<Session>;
 
-    constructor({ code, name, url, sessionList }: { code: number; name: string; url: URL; sessionList: Array<Session>; }) {
+    constructor(code: number, name: string, url: URL, sessionList: Array<Session> = null) {
         this.code = code;
         this.name = name;
         this.url = url;
         this.sessionsList = sessionList;
     }
-
-    startProblem(startTimestamp: number = Date.now()): Problem {
-        
-    }
-
 }
 
 export class ProblemBuilder {
@@ -46,6 +41,6 @@ export class ProblemBuilder {
     }
 
     build(): Problem {
-        return new Problem({ code: this._code, name: this._name, url: this._url, sessionList: this._sessionsList });
+        return new Problem(this._code, this._name, this._url, this._sessionsList);
     }
 }

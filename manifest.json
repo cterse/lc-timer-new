@@ -1,0 +1,19 @@
+{
+    "name": "New Leetcode Timer",
+    "version": "1.0",
+    "description": "Timer for Leetcode questions.",
+    
+    "icons": {
+        "64": "assets/images/icon100.png"
+    },
+
+    "permissions": ["storage"],
+
+    "background": {
+        "persistent": false,
+        "scripts": ["background.js"]
+    },
+
+    "manifest_version": 2
+    
+}
