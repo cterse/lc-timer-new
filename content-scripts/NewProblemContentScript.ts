@@ -1,5 +1,6 @@
 import { Constants } from "./Constants";
-import { ProblemUtils } from "./ProblemUtils";
+import { ProblemUtils } from "./problemUtils";
+import { ProblemCollection, ChromeStorageResult } from "./ProblemCollection";
 
 let pageInitInterval = setInterval(setupMonitoringScript, 100);
 
@@ -7,22 +8,19 @@ function setupMonitoringScript() {
     if ($(Constants.PROBLEM_TITLE_SELECTOR).length) {
         clearInterval(pageInitInterval);
         
-        let prob_obj = new ProblemUtils().createProblemFromContext();
+        let problem = new ProblemUtils().createProblemFromContext();
 
-        chrome.storage.sync.get([Constants.STORAGE_PROBLEM_COLLECTION], function(result){
+        chrome.storage.sync.get([Constants.STORAGE_PROBLEM_COLLECTION], function(result: ChromeStorageResult){
             if (!result) {
-                console.error("lc-timer:problem-content : Error getting result from sync.");
+                console.error("lc-timer-new:problem-content : Error getting result from sync.");
                 return null;
             }
             
-            problemsCollection = {};
-            if (result.problem_collection_obj) {
-                problemsCollection = result.problem_collection_obj;
-            }
-
+            let problemsCollection = new ProblemCollection(result);
+            
             let storageUpdated = false;
-            if (!problemsCollection[prob_obj.code]) {
-                console.debug("lc-timer:problem=content : Problem does not exist in storage, adding it.");
+            if (!problemsCollection.getProblem(problem.code)) {
+                console.debug("lc-timer-new:problem=content : Problem does not exist in storage, adding it.");
                 problemsCollection[prob_obj.code] = prob_obj;
                 storageUpdated = true;
             } else {
