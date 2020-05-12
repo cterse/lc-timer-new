@@ -1,4 +1,5 @@
 import { Session } from "./Session";
+import { Constants } from "./Constants";
 
 export class Problem {
     code: number;
@@ -11,6 +12,33 @@ export class Problem {
         this.name = name;
         this.url = url;
         this.sessionsList = sessionList;
+    }
+
+    start(startTimestamp: number = Date.now()): Problem {
+        let newSession = this.createNewSession(Date.now(), Constants.SESSION_STATUS_ACTIVE);
+        return this.addSession(newSession);
+    }
+
+    private createNewSession(startTimestamp: number = Date.now(), status: string = Constants.SESSION_STATUS_ACTIVE): Session {
+        return new Session(this.getNewSessionId(), startTimestamp, status, null);
+    }
+
+    private getNewSessionId(): string {
+        let sid = this.sessionsList ? (this.sessionsList.length + 1).toString() : '1';
+        sid = this.code + '-' + sid;
+        return sid;
+    }
+
+    private addSession(session: Session): Problem {
+        if (!session) {
+            console.error("Problem:addSession :: faulty session argument");
+            return this;
+        }
+        
+        if (this.sessionsList) this.sessionsList.push(session);
+        else this.sessionsList = [session];
+
+        return this;
     }
 }
 
