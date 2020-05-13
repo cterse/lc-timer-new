@@ -1,8 +1,8 @@
 import { Constants } from "./Constants";
-import { Problem, ProblemBuilder } from "./Problem";
+import { Problem } from "./Problem";
 
 export class ProblemUtils {
-    private extractProblemCode(): number {
+    extractProblemCode(): number {
         return Number($( Constants.PROBLEM_TITLE_SELECTOR ).text().split('.')[0].trim());
     }
     
@@ -15,12 +15,6 @@ export class ProblemUtils {
     }
     
     createProblemFromContext(): Problem {
-        let problemCode = this.extractProblemCode();
-        if (!problemCode) {
-            console.error("ProblemUtils:createProblemFromContext :: error generating problem id");
-            return null;
-        }
-    
-        return new Problem(problemCode, this.extractProblemName(), this.extractProblemUrl(), []);
+        return new Problem(this.extractProblemCode(), this.extractProblemName(), this.extractProblemUrl(), []);
     }
 }

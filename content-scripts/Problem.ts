@@ -1,5 +1,6 @@
 import { Session } from "./Session";
 import { Constants } from "./Constants";
+import { ProblemUtils } from "./problemUtils";
 
 export class Problem {
     code: number;
@@ -7,7 +8,7 @@ export class Problem {
     url: URL;
     sessionsList: Array<Session>;
 
-    constructor(code: number, name: string, url: URL, sessionList: Array<Session> = null) {
+    constructor(code: number, name: string, url: URL, sessionList: Array<Session> = []) {
         this.code = code;
         this.name = name;
         this.url = url;
@@ -15,60 +16,37 @@ export class Problem {
     }
 
     start(startTimestamp: number = Date.now()): Problem {
-        let newSession = this.createNewSession(Date.now(), Constants.SESSION_STATUS_ACTIVE);
+        if (this.getStatus() !== Constants.PROBLEM_STATUS_CREATED) throw new Error("Attempt to start a " + this.getStatus() + " problem");
+        return this.startNewSession(startTimestamp);
+    }
+
+    startNewSession(startTimestamp: number = Date.now()): Problem {
+        let newSession = new Session(this.getNewSessionId()).start(startTimestamp);
         return this.addSession(newSession);
     }
 
-    private createNewSession(startTimestamp: number = Date.now(), status: string = Constants.SESSION_STATUS_ACTIVE): Session {
-        return new Session(this.getNewSessionId(), startTimestamp, status, null);
-    }
-
     private getNewSessionId(): string {
-        let sid = this.sessionsList ? (this.sessionsList.length + 1).toString() : '1';
-        sid = this.code + '-' + sid;
-        return sid;
+        return this.code + '-' + (this.sessionsList.length + 1).toString();
     }
 
     private addSession(session: Session): Problem {
-        if (!session) {
-            console.error("Problem:addSession :: faulty session argument");
-            return this;
-        }
-        
-        if (this.sessionsList) this.sessionsList.push(session);
-        else this.sessionsList = [session];
-
-        return this;
-    }
-}
-
-export class ProblemBuilder {
-    private _code: number = -1;
-    private _name: string = null;
-    private _url: URL = null;
-    private _sessionsList: Array<Session> = null;
-
-    setCode(code: number): ProblemBuilder {
-        this._code = code;
+        this.sessionsList.push(session);
         return this;
     }
 
-    setName(name: string): ProblemBuilder {
-        this._name = name;
-        return this;
+    getStatus(): string {
+        return this.getLatestSession()?.status ?? Constants.PROBLEM_STATUS_CREATED;
     }
 
-    setUrl(url: URL): ProblemBuilder {
-        this._url = url;
-        return this;
+    getLatestSession(): Session | undefined {
+        return this.sessionsList[this.sessionsList.length - 1];
     }
 
-    setSessionsList(list: Array<Session>): ProblemBuilder {
-        this._sessionsList = list;
-        return this;
+    isComplete(): boolean {
+        return this.getStatus() === Constants.PROBLEM_STATUS_COMPLETE;
     }
 
-    build(): Problem {
-        return new Problem(this._code, this._name, this._url, this._sessionsList);
+    isActive(): boolean {
+        return this.getStatus() === Constants.PROBLEM_STATUS_ACTIVE;
     }
 }

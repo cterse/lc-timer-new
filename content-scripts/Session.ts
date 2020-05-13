@@ -3,15 +3,27 @@ import { Problem } from "./Problem";
 
 export class Session {
     id: string;
-    initTimestamp: number;
+    initTimestamp?: number;
     status: string;
-    endTimestamp: number;
+    endTimestamp?: number;
 
-    constructor(id: string, init_ts: number, status: string, end_ts: number = null) {
+    constructor(id: string) {
         this.id = id;
-        this.initTimestamp = init_ts;
-        this.endTimestamp = end_ts;
-        this.status = status;
+        this.status = Constants.SESSION_STATUS_CREATED;
+    }
+
+    setStatus(): string {
+        if (this.endTimestamp) return Constants.SESSION_STATUS_COMPLETE;
+        else if (this.initTimestamp) return Constants.SESSION_STATUS_ACTIVE;
+        else return Constants.SESSION_STATUS_CREATED;
+    }
+
+    start(startTimestamp: number = Date.now()): Session {
+        if (this.status !== Constants.SESSION_STATUS_CREATED) throw new Error("Attempt to start a "+this.status+" session");
+
+        this.initTimestamp = startTimestamp;
+        this.status = Constants.SESSION_STATUS_ACTIVE;
+        return this;
     }
 
 }

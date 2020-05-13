@@ -1,5 +1,5 @@
 export class Constants {
-    static STORAGE_PROBLEM_COLLECTION = "problem_collection_obj";
+    static readonly STORAGE_PROBLEM_COLLECTION = "problem_collection_obj";
 
     static PROBLEM_TITLE_SELECTOR = "div[data-cy=question-title]";
 
@@ -11,9 +11,11 @@ export class Constants {
 
     static PROBLEM_STATUS_COMPLETE = "complete";
 
+    static PROBLEM_STATUS_CREATED = "created";  // when a problem is created but has no associated sessions.
+
     static SESSION_STATUS_ACTIVE = "active";
     
     static SESSION_STATUS_COMPLETE = "complete";
 
-    static SESSIONS_STATUS_CREATED = "created";
+    static SESSION_STATUS_CREATED = "created";
 }
