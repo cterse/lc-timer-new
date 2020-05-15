@@ -2,22 +2,22 @@ import { Problem } from "./Problem";
 import { Constants } from "./Constants";
 
 export class ProblemCollection {
-    private problemCollectionObject: {[x: number]: Problem};
+    private problemCollectionObject: {[x: number]: string};
     private activeProblemCount: number = 0;
     private completeProblemCount: number = 0;
     private totalProblemCount: number = 0;
 
     constructor(storageResult?: ChromeStorageResult) {
-        this.problemCollectionObject = storageResult ? storageResult[Constants.STORAGE_PROBLEM_COLLECTION] : {};
+        this.problemCollectionObject = storageResult?.[Constants.STORAGE_PROBLEM_COLLECTION] ?? {};
         this.updateProblemCount();
     }
 
     getProblem(problemCode: number): Problem | undefined {
-        return this.problemCollectionObject[problemCode];
+        return JSON.parse(this.problemCollectionObject[problemCode]);
     }
 
     addProblem(problem: Problem): Problem {
-        this.problemCollectionObject[problem.code] = problem;
+        this.problemCollectionObject[problem.code] = JSON.stringify(problem);
         this.updateProblemCount();
         return problem;
     }
@@ -26,15 +26,16 @@ export class ProblemCollection {
         let deletedProblem = this.problemCollectionObject[problemCode];
         delete this.problemCollectionObject[problemCode];
         this.updateProblemCount();
-        return deletedProblem;
+        return JSON.parse(deletedProblem);
     }
 
     updateProblemCount(): void {
         let activeCount = 0, completeCount = 0, total = 0;
         for (let key in this.problemCollectionObject) {
             if (!this.problemCollectionObject.hasOwnProperty(key)) continue;
-            if (this.problemCollectionObject[key].getStatus() === Constants.PROBLEM_STATUS_ACTIVE) activeCount++;
-            if (this.problemCollectionObject[key].getStatus() === Constants.PROBLEM_STATUS_COMPLETE) completeCount++;
+            let problem: Problem = JSON.parse(this.problemCollectionObject[key]);
+            if (problem.getStatus() === Constants.PROBLEM_STATUS_ACTIVE) activeCount++;
+            if (problem.getStatus() === Constants.PROBLEM_STATUS_COMPLETE) completeCount++;
             total++;
         }
         this.activeProblemCount = activeCount;
@@ -56,5 +57,5 @@ export class ProblemCollection {
 }
 
 export interface ChromeStorageResult {
-    [Constants.STORAGE_PROBLEM_COLLECTION]: {[x: number]: Problem};
+    [key: string]: any;
 }
