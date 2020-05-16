@@ -4,7 +4,8 @@
   "description": "Leetcode Timer using Typescript and React",
   "main": "background.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine",
+    "build": "rm -rf dist/* && cp manifest.json dist && cp -r assets dist && cp -r lib dist && webpack --config webpack.config.js"
   },
   "author": "Chinmay Terse",
   "license": "MIT",

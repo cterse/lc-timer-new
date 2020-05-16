@@ -1,6 +1,6 @@
 import { Constants } from "./Constants";
 import { ProblemCollection, ChromeStorageResult } from "./ProblemCollection";
-import { ProblemUtils } from "./problemUtils";
+import { ProblemUtils } from "./ProblemUtils";
 
 let pageInitInterval = setInterval(setupMonitoringScript, 100);
 

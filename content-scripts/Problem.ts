@@ -1,6 +1,6 @@
 import { Session } from "./Session";
 import { Constants } from "./Constants";
-import { ProblemUtils } from "./problemUtils";
+import { ProblemUtils } from "./ProblemUtils";
 
 export class Problem {
     code: number;
