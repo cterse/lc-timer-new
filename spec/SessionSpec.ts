@@ -11,26 +11,54 @@ describe('Session Test Suite', () => {
         });
     });
 
-    describe('Session.updateStatus() method', () => {
-        it('should update session status to created if session has no init and end timestamps', () => {
-            let sessionStatus = new Session('test').getStatus();
+    describe('Session.start() method', () => {
+        it('should start the session with the current timestamp when called with no arguments, and update session status', () => {
+            let startedSession = new Session('test').start();
 
-            expect(sessionStatus).toBe(Constants.SESSION_STATUS_CREATED);
+            expect(startedSession.getStatus()).toBe(Constants.SESSION_STATUS_ACTIVE);
+            expect(startedSession.getInitTimestamp()).toEqual(jasmine.any(Number));
         });
-        it('should update session status to active if session has init and no end timestamp', () => {
-            let sessionStatus = new Session('test', Date.now()).getStatus();
+        it('should start the session with the provided timestamp, and update session status', () => {
+            let ts = Date.now();
 
-            expect(sessionStatus).toBe(Constants.SESSION_STATUS_ACTIVE);
+            let startedSession = new Session('test').start(ts);
+
+            expect(startedSession.getInitTimestamp()).toBe(ts);
+            expect(startedSession.getStatus()).toBe(Constants.SESSION_STATUS_ACTIVE);
         });
-        it('should update session status to complete if session has both init and end timestamps', () => {
-            let sessionStatus = new Session('test', Date.now(), Date.now() + 100000).getStatus();
+        it('should throw an error if the session status is not created', () => {
+            let startedSession = new Session('test', Date.now());
+            expect(startedSession.getStatus()).not.toBe(Constants.SESSION_STATUS_CREATED);
+            expect(startedSession.start).toThrowError();
 
-            expect(sessionStatus).toBe(Constants.SESSION_STATUS_COMPLETE);
+            let completedSession = startedSession.complete();
+            expect(startedSession.getStatus()).not.toBe(Constants.SESSION_STATUS_CREATED);
+            expect(startedSession.start).toThrowError();
         });
     });
 
-    describe('Session.start() method', () => {
-        it('should start a session with the current timestamp when called with no arguments, and update session status');
-        it('should start a session with the provided timestamp, and update session status');
+    describe('Session.complete() method', () => {
+        it('should throw an error if the session status is not active', () => {
+            let createdSession = new Session('test');
+            expect(createdSession.getStatus()).not.toBe(Constants.SESSION_STATUS_ACTIVE);
+            expect(createdSession.complete).toThrowError();
+
+            let completedSession = createdSession.start().complete();
+            expect(completedSession.getStatus()).not.toBe(Constants.SESSION_STATUS_ACTIVE);
+            expect(completedSession.complete).toThrowError();
+        });
+        it('should complete the session with the current timestamp when called with no arguments, and update session status', () => {
+            let completedSession = new Session('test', Date.now()).complete();
+
+            expect(completedSession.getEndTimestamp()).toEqual(jasmine.any(Number));
+            expect(completedSession.getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
+        });
+        it('should complete the session with the provided timestamp, and update session status', () => {
+            let ts = Date.now();
+            let completedSession = new Session('test', Date.now()).complete(ts);
+
+            expect(completedSession.getEndTimestamp()).toEqual(ts);
+            expect(completedSession.getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
+        });
     });
 });

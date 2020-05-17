@@ -29,7 +29,7 @@ function setupMonitoringScript() {
                 let problem = problemsCollection.getProblem(currentProblemCode);
                 if (problem?.isComplete()) {
                     console.debug("lc-timer:problem-content : Completed problem exists, starting a new session.");
-                    problem.startNewSession(currentTime);
+                    problem.start(currentTime);
                     storageUpdated = true;
                 } else {
                     console.debug("lc-timer:problem=content : Problem already active.");

@@ -3,10 +3,10 @@ import { Constants } from "./Constants";
 import { ProblemUtils } from "./ProblemUtils";
 
 export class Problem {
-    code: number;
-    name: string;
-    url: URL;
-    sessionsList: Array<Session>;
+    private code: number;
+    private name: string;
+    private url: URL;
+    private sessionsList: Array<Session>;
 
     constructor(code: number, name: string, url: URL, sessionList: Array<Session> = []) {
         this.code = code;
@@ -17,11 +17,13 @@ export class Problem {
 
     start(startTimestamp: number = Date.now()): Problem {
         if (this.getStatus() !== Constants.PROBLEM_STATUS_CREATED) throw new Error("Attempt to start a " + this.getStatus() + " problem");
+        
         return this.startNewSession(startTimestamp);
     }
 
-    startNewSession(startTimestamp: number = Date.now()): Problem {
+    private startNewSession(startTimestamp: number = Date.now()): Problem {
         let newSession = new Session(this.getNewSessionId()).start(startTimestamp);
+        
         return this.addSession(newSession);
     }
 
@@ -31,6 +33,15 @@ export class Problem {
 
     private addSession(session: Session): Problem {
         this.sessionsList.push(session);
+        
+        return this;
+    }
+
+    complete(endTimestamp: number = Date.now()): Problem {
+        if (this.getStatus() !== Constants.PROBLEM_STATUS_ACTIVE) throw new Error("Attempt to complete a " + this.getStatus() + " problem");
+        let completedSession = this.getLatestSession()?.complete(endTimestamp) ?? undefined;
+        if (!completedSession) throw new Error("Problem session list empty");
+        
         return this;
     }
 

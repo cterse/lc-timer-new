@@ -35,6 +35,7 @@ export class Session {
 
         this.initTimestamp = startTimestamp;
         this.updateStatus();
+        
         return this;
     }
 
@@ -43,10 +44,11 @@ export class Session {
 
         this.endTimestamp = stopTimestamp;
         this.updateStatus();
+
         return this;
     }
 
-    updateStatus(): string {
+    private updateStatus(): string {
         if (this.endTimestamp && this.initTimestamp) this.status = Constants.SESSION_STATUS_COMPLETE;
         else if (this.initTimestamp) this.status = Constants.SESSION_STATUS_ACTIVE;
         else this.status = Constants.SESSION_STATUS_CREATED;
