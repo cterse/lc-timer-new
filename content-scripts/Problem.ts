@@ -35,7 +35,7 @@ export class Problem {
     }
 
     getStatus(): string {
-        return this.getLatestSession()?.status ?? Constants.PROBLEM_STATUS_CREATED;
+        return this.getLatestSession()?.getStatus() ?? Constants.PROBLEM_STATUS_CREATED;
     }
 
     getLatestSession(): Session | undefined {

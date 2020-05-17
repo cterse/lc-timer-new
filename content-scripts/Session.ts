@@ -2,28 +2,56 @@ import { Constants } from "./Constants";
 import { Problem } from "./Problem";
 
 export class Session {
-    id: string;
-    initTimestamp?: number;
-    status: string;
-    endTimestamp?: number;
+    private id: string;
+    private initTimestamp?: number;
+    private status: string;
+    private endTimestamp?: number;
 
-    constructor(id: string) {
+    constructor(id: string, startTimestamp?: number, endTimestamp?: number) {
         this.id = id;
-        this.status = Constants.SESSION_STATUS_CREATED;
+        this.initTimestamp = startTimestamp ?? undefined;
+        this.endTimestamp = endTimestamp ?? undefined;
+        this.status = this.updateStatus();
     }
 
-    setStatus(): string {
-        if (this.endTimestamp) return Constants.SESSION_STATUS_COMPLETE;
-        else if (this.initTimestamp) return Constants.SESSION_STATUS_ACTIVE;
-        else return Constants.SESSION_STATUS_CREATED;
+    getId(): string {
+        return this.id;
+    }
+
+    getInitTimestamp(): number | undefined {
+        return this.initTimestamp;
+    }
+
+    getEndTimestamp(): number | undefined {
+        return this.endTimestamp;
+    }
+
+    getStatus(): string {
+        return this.status;
     }
 
     start(startTimestamp: number = Date.now()): Session {
         if (this.status !== Constants.SESSION_STATUS_CREATED) throw new Error("Attempt to start a "+this.status+" session");
 
         this.initTimestamp = startTimestamp;
-        this.status = Constants.SESSION_STATUS_ACTIVE;
+        this.updateStatus();
         return this;
+    }
+
+    complete(stopTimestamp: number = Date.now()): Session {
+        if (this.status !== Constants.SESSION_STATUS_ACTIVE) throw new Error("Attemp to complete a "+this.status+" session");
+
+        this.endTimestamp = stopTimestamp;
+        this.updateStatus();
+        return this;
+    }
+
+    updateStatus(): string {
+        if (this.endTimestamp && this.initTimestamp) this.status = Constants.SESSION_STATUS_COMPLETE;
+        else if (this.initTimestamp) this.status = Constants.SESSION_STATUS_ACTIVE;
+        else this.status = Constants.SESSION_STATUS_CREATED;
+
+        return this.status;
     }
 
 }
