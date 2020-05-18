@@ -1,5 +1,12 @@
 import { Problem } from "./Problem";
 import { Constants } from "./Constants";
+import { Session } from "./Session";
+import { ChromeStorageResult, ChromeStorageProblem } from "./ChromeStorageTypes";
+import { ProblemUtils } from "./ProblemUtils";
+
+interface ProblemCollectionObject {
+    [key: string]: Problem;
+}
 
 export class ProblemCollection {
     private problemCollectionObject: ProblemCollectionObject;
@@ -8,9 +15,28 @@ export class ProblemCollection {
     private totalProblemCount: number = 0;
 
     constructor(storageResult?: ChromeStorageResult) {
-        debugger;
-        this.problemCollectionObject = storageResult?.[Constants.STORAGE_PROBLEM_COLLECTION] ?? {};
-        this.updateProblemCount();
+        this.problemCollectionObject = storageResult ? this.contructCollectionObjectFromChromeResult(storageResult) : {};
+    }
+
+    private contructCollectionObjectFromChromeResult(storageResult: ChromeStorageResult): ProblemCollectionObject {
+        let chromeCollectionObject = storageResult[Constants.STORAGE_PROBLEM_COLLECTION];
+        let pcObject: ProblemCollectionObject = {};
+        let problemUtils = new ProblemUtils();
+
+        for (let key in chromeCollectionObject) {
+            if (!chromeCollectionObject.hasOwnProperty(key)) continue;
+
+            let storageProblem = chromeCollectionObject[key];
+            let code: number = problemUtils.getProblemCodeFromStorageProblem(storageProblem);
+            let name: string = problemUtils.getProblemNameFromStorageProblem(storageProblem);
+            let url: URL = problemUtils.getProblemUrlFromStorageProblem(storageProblem);
+            let sessionsList: Array<Session> = problemUtils.getProblemSessionListFromStorageProblem(storageProblem);
+            let problem = new Problem(code, name, url, sessionsList);
+
+            pcObject[problem.getCode()] = problem;
+        }
+
+        return pcObject;
     }
 
     getProblemCollectionObject(): ProblemCollectionObject {
@@ -18,16 +44,14 @@ export class ProblemCollection {
     }
 
     setProblemCollectionObject(storageResult: ChromeStorageResult): ProblemCollection {
-        this.problemCollectionObject = storageResult[Constants.STORAGE_PROBLEM_COLLECTION];
-        return this;
     }
 
     getProblem(problemCode: number): Problem | undefined {
-        return JSON.parse(this.problemCollectionObject[problemCode]);
+        return this.problemCollectionObject[problemCode];
     }
 
     addProblem(problem: Problem): Problem {
-        this.problemCollectionObject[problem.code] = JSON.stringify(problem);
+        this.problemCollectionObject[problem.getCode()] = problem;
         this.updateProblemCount();
         return problem;
     }
@@ -36,7 +60,7 @@ export class ProblemCollection {
         let deletedProblem = this.problemCollectionObject[problemCode];
         delete this.problemCollectionObject[problemCode];
         this.updateProblemCount();
-        return JSON.parse(deletedProblem);
+        return deletedProblem;
     }
 
     updateProblemCount(): void {
@@ -67,10 +91,4 @@ export class ProblemCollection {
     }
 }
 
-export interface ChromeStorageResult {
-    [key: string]: any;
-}
 
-export interface ProblemCollectionObject {
-    [key: number]: any;
-}

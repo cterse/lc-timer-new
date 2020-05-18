@@ -18,4 +18,14 @@ export class Constants {
     static SESSION_STATUS_COMPLETE = "complete";
 
     static SESSION_STATUS_CREATED = "created";
+
+    static readonly STORAGE_PROBLEM_CODE = "code";
+    static readonly STORAGE_PROBLEM_NAME = "name";
+    static readonly STORAGE_PROBLEM_URL = "url";
+    static readonly STORAGE_PROBLEM_SESSION_LIST = "session_list";
+
+    static readonly STORAGE_SESSION_ID = "s_id";
+    static readonly STORAGE_SESSION_INIT_TS = "s_init_ts";
+    static readonly STORAGE_SESSION_END_TS = "s_end_ts";
+    static readonly STORAGE_SESSION_STATUS = "s_status";
 }
