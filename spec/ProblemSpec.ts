@@ -6,23 +6,27 @@ import { ProblemUtils } from "../content-scripts/ProblemUtils";
 describe('Problem Test Suite', () => {
     describe('Problem.start() method', () => {
         it('should throw an error if problem status is already active', () => {
-            let activeSession = new Session('test-session', Date.now());
-            let activeProblem = new Problem(1, 'test', new URL('https://test.com'), [activeSession]);
+            let activeProblem = new Problem(1, 'test', new URL('https://test.com'), []);
+            spyOn(activeProblem, 'getStatus').and.returnValue(Constants.PROBLEM_STATUS_ACTIVE);
 
             expect(activeProblem.start).toThrowError();
         });
         it('add new active session with current or provided timestamp if problem is created or complete', () => {
             let problem = new Problem(1, 'test', new URL('https://test.com'), []);
-            problem = problem.start();
+            spyOn(problem, 'getStatus').and.returnValues(Constants.PROBLEM_STATUS_CREATED, Constants.PROBLEM_STATUS_COMPLETE);
 
-            expect(problem.sessionsList.length).toBeGreaterThan(0);
-            expect(problem.sessionsList[problem.sessionsList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_ACTIVE);
+            problem = problem.start();
+            let startedProblemSessionList = problem.getSessionList();
+
+            expect(startedProblemSessionList.length).toBeGreaterThan(0);
+            expect(startedProblemSessionList[startedProblemSessionList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_ACTIVE);
 
             problem = new Problem(2, 'test', new URL('https://test.com'), []);
             problem = problem.start(Date.now());
+            startedProblemSessionList = problem.getSessionList();
 
-            expect(problem.sessionsList.length).toBeGreaterThan(0);
-            expect(problem.sessionsList[problem.sessionsList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_ACTIVE);
+            expect(startedProblemSessionList.length).toBeGreaterThan(0);
+            expect(startedProblemSessionList[startedProblemSessionList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_ACTIVE);
         });
     });
 
@@ -39,20 +43,22 @@ describe('Problem Test Suite', () => {
             spyOn(problem, 'getStatus').and.returnValue(Constants.PROBLEM_STATUS_ACTIVE);
 
             problem.complete();
-            
-            expect(problem.sessionsList[problem.sessionsList.length-1].getId()).toBe('test-session');
-            expect(problem.sessionsList[problem.sessionsList.length-1].getEndTimestamp()).not.toBeFalsy();
-            expect(problem.sessionsList[problem.sessionsList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
+            let completedSessionList = problem.getSessionList();
+
+            expect(completedSessionList[completedSessionList.length-1].getId()).toBe('test-session');
+            expect(completedSessionList[completedSessionList.length-1].getEndTimestamp()).not.toBeFalsy();
+            expect(completedSessionList[completedSessionList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
 
             session = new Session('test-session-2', Date.now());
             problem = new Problem(1, 'test', new URL('https://test.com'), [session]);
             spyOn(problem, 'getStatus').and.returnValue(Constants.PROBLEM_STATUS_ACTIVE);
 
             problem.complete();
-            
-            expect(problem.sessionsList[problem.sessionsList.length-1].getId()).toBe('test-session');
-            expect(problem.sessionsList[problem.sessionsList.length-1].getEndTimestamp()).not.toBeFalsy();
-            expect(problem.sessionsList[problem.sessionsList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
+            completedSessionList = problem.getSessionList();
+
+            expect(completedSessionList[completedSessionList.length-1].getId()).toBe('test-session-2');
+            expect(completedSessionList[completedSessionList.length-1].getEndTimestamp()).not.toBeFalsy();
+            expect(completedSessionList[completedSessionList.length-1].getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
         });
     });
 

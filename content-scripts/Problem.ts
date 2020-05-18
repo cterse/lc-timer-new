@@ -15,6 +15,22 @@ export class Problem {
         this.sessionsList = sessionList;
     }
 
+    getSessionList(): Array<Session> {
+        return this.sessionsList;
+    }
+
+    getCode(): number {
+        return this.code;
+    }
+
+    getName(): string {
+        return this.name;
+    }
+
+    getUrl(): URL {
+        return this.url;
+    }
+
     start(startTimestamp: number = Date.now()): Problem {
         if (this.getStatus() !== Constants.PROBLEM_STATUS_CREATED) throw new Error("Attempt to start a " + this.getStatus() + " problem");
         
