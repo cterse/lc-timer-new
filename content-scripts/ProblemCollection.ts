@@ -15,26 +15,7 @@ export class ProblemCollection {
         this.updateProblemCount();
     }
 
-    private contructProblemsMapFromChromeResult(storageResult: ChromeStorageResult): Map<number, Problem> {
-        let chromeCollectionObject = storageResult[Constants.STORAGE_PROBLEM_COLLECTION];
-        let pcObject = new Map<number, Problem>();
-        let problemUtils = new ProblemUtils();
-
-        for (let key in chromeCollectionObject) {
-            if (!chromeCollectionObject.hasOwnProperty(key)) continue;
-
-            let storageProblem = chromeCollectionObject[key];
-            let code = problemUtils.getProblemCodeFromStorageProblem(storageProblem);
-            let name = problemUtils.getProblemNameFromStorageProblem(storageProblem);
-            let url = problemUtils.getProblemUrlFromStorageProblem(storageProblem);
-            let sessionsList = problemUtils.getProblemSessionListFromStorageProblem(storageProblem);
-            let problem = new Problem(code, name, url, sessionsList);
-
-            pcObject.set(problem.getCode(), problem);
-        }
-
-        return pcObject;
-    }
+    
 
     getProblemCollectionObject(): Map<number, Problem> {
         return this.problemCollectionObject;
