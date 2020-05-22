@@ -4,8 +4,12 @@ import { ChromeStorageProblem, ChromeStorageSession, ChromeStorageResult } from 
 import { Session } from "./Session";
 
 export class ProblemUtils {
-    private extractProblemHeaderTextFromContext(): string | undefined {
-        return $( Constants.PROBLEM_TITLE_SELECTOR )?.text();
+    extractProblemHeaderTextFromContext(): string {
+        try {
+            return $( Constants.PROBLEM_TITLE_SELECTOR ).text();
+        } catch(error) {
+            throw error;
+        }
     }
 
     private extractProblemCodeFromProblemHeaderString(problemHeader: string): number {
@@ -18,7 +22,7 @@ export class ProblemUtils {
         return problemHeader.split('.')[1].trim();
     }
     
-    private extractProblemUrlFromContext(): URL {
+    extractProblemUrlFromContext(): URL {
         try {
             return new URL(location.href);
         } catch(error) {
@@ -27,20 +31,17 @@ export class ProblemUtils {
     }
     
     createProblemFromContext(): Problem | null {
-        let problemHeader = this.extractProblemHeaderTextFromContext();
-        if (!problemHeader) return null;
-
         try {
+            let problemHeader = this.extractProblemHeaderTextFromContext();
             let currentProblemName = this.extractProblemNameFromProblemHeaderString(problemHeader);
             let currentProblemCode = this.extractProblemCodeFromProblemHeaderString(problemHeader);
             let currentProblemUrl = this.extractProblemUrlFromContext();
 
             return new Problem(currentProblemCode, currentProblemName, currentProblemUrl, []);
         } catch(error) {
-            console.error('error getting problem details from context');
-        } finally {
-            return null;
+            console.error(error.message);
         }
+        return null;
     }
 
     getProblemNameFromStorageProblem(storageProblem: ChromeStorageProblem): string {

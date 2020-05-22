@@ -1,4 +1,5 @@
 import { Constants } from "./Constants";
+import { Session } from "./Session";
 
 export interface ChromeStorageSession {
     [Constants.STORAGE_SESSION_ID]: string;

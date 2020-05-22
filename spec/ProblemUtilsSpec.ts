@@ -6,25 +6,38 @@ import { Session } from "../content-scripts/Session";
 describe('ProblemUtils Test Suite', () => {
     var problemUtils = new ProblemUtils();
 
-    xdescribe('ProblemUtils.extractProblemCodeFromProblemHeaderString() method', () => {
-        it('should return an integer if the input string contains a period');
-        it('should throw an error if the input string does not contain a period');
-    });
-
-    xdescribe('ProblemUtils.extractProblemNameFromProblemHeaderString() method', () => {
-        it('should throw an error if the input does not contain a period');
-        it('should return a string if the input contains a period');
-    });
-
-    xdescribe('ProblemUtils.extractProblemUrlFromContext() method', () => {
-        it('should throw an error in case of any problems getting location.href');
-        it('should return a URL object with location.href value as url');
-    });
-
     describe('ProblemUtils.createProblemFromContext() method', () => {
-        it('should extract the problem header string, extract the problem details from it and create and return a Problem object using those details');
-        it('should extract the problem header string from context and return null if any issues with it');
-        it('should extract problem details from the problem header and return null if any issue with any of the details');
+        it('should extract the problem header string, extract the problem details from it and create and return a Problem object using those details', () => {
+            spyOn(problemUtils, 'extractProblemHeaderTextFromContext').and.returnValue('1 . Two Sum');
+            spyOn(problemUtils, 'extractProblemUrlFromContext').and.returnValue(new URL('https://www.google.com'));
+
+            let problem = problemUtils.createProblemFromContext();
+
+            expect(problem).not.toBeNull();
+            expect(problem?.getCode()).toBe(1);
+            expect(problem?.getName()).toBe('Two Sum');
+            expect(problem?.getSessionList().length).toBe(0);
+        });
+        it('should extract the problem header string from context and return null if any issues with it', () => {
+            spyOn(problemUtils, 'extractProblemHeaderTextFromContext').and.throwError('error');
+            
+            let problem = problemUtils.createProblemFromContext();
+            
+            expect(problem).toBeNull();
+        });
+        it('should extract the problem URL and return null if any issues with it', () => {
+            let error = new Error('test detail error');
+            spyOn(problemUtils, 'extractProblemHeaderTextFromContext').and.returnValue('1 . Two Sum');
+            spyOn(problemUtils, 'extractProblemUrlFromContext').and.throwError(error);
+            expect(problemUtils.createProblemFromContext()).toBeNull();
+        });
+        it('should extract the problem name and code from the header string and return null if any issues with them', () => {
+            let problemHeaderString = 'problem header without a period in it';
+            spyOn(problemUtils, 'extractProblemHeaderTextFromContext').and.returnValue(problemHeaderString);
+            spyOn(problemUtils, 'extractProblemUrlFromContext').and.returnValue(new URL('https://www.google.com'));
+
+            expect(problemUtils.createProblemFromContext()).toBeNull();
+        });
     });
 
     describe('ProblemUtils.getSessionFromStorageSession() method', () => {
