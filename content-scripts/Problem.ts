@@ -20,6 +20,11 @@ export class Problem {
         return this.sessionsList;
     }
 
+    setSesstionList(list: Session[]): Problem {
+        this.sessionsList = list;
+        return this;
+    }
+
     getCode(): number {
         return this.code;
     }

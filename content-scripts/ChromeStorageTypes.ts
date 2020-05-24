@@ -1,5 +1,7 @@
 import { Constants } from "./Constants";
 import { Session } from "./Session";
+import { ProblemCollection } from "./ProblemCollection";
+import { Problem } from "./Problem";
 
 export interface ChromeStorageSession {
     [Constants.STORAGE_SESSION_ID]: string;
@@ -21,4 +23,13 @@ export interface ChromeStorageProblemCollection {
 
 export interface ChromeStorageResult {
     [Constants.STORAGE_PROBLEM_COLLECTION]?: ChromeStorageProblemCollection;
+}
+
+export interface Converter {
+    problemCollectionMapToChromeCollection(pc: Map<number, Problem>): ChromeStorageProblemCollection;
+    chromeCollectionToProblemCollectionMap(chromeCollection: ChromeStorageProblemCollection): Map<number, Problem>;
+    chromeStorageProblemToProblem(csProblem: ChromeStorageProblem): Problem;
+    problemToChromeStorageProblem(p: Problem): ChromeStorageProblem;
+    sessionToChromeStorageSession(session: Session): ChromeStorageSession;
+    chromeStorageSessionToSession(csSession: ChromeStorageSession): Session;
 }

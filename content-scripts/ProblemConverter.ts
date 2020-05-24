@@ -1,9 +1,33 @@
-import { ChromeStorageSession, ChromeStorageProblem } from "./ChromeStorageTypes";
+import { ChromeStorageSession, ChromeStorageProblem, ChromeStorageProblemCollection, Converter } from "./ChromeStorageTypes";
 import { Session } from "./Session";
 import { Constants } from "./Constants";
 import { Problem } from "./Problem";
+import { ProblemCollection } from "./ProblemCollection";
 
-export class ProblemConverter {
+export class ProblemConverter implements Converter {
+    problemCollectionMapToChromeCollection(pcMap: Map<number, Problem>): ChromeStorageProblemCollection {
+        let csCollection: ChromeStorageProblemCollection = {};
+
+        for (let problem of pcMap.values()) {
+            csCollection[problem.getCode()] = this.problemToChromeStorageProblem(problem);
+        }
+
+        return csCollection;
+    }
+
+    chromeCollectionToProblemCollectionMap(chromeCollection: ChromeStorageProblemCollection): Map<number, Problem> {
+        let pcMap = new Map<number, Problem>();
+
+        for (var key in chromeCollection) {
+            if (!chromeCollection.hasOwnProperty(key)) continue;
+
+            let problem = this.chromeStorageProblemToProblem(chromeCollection[key]);
+            pcMap.set(problem.getCode(), problem);
+        }
+
+        return pcMap;
+    }
+
     chromeStorageProblemToProblem(csProblem: ChromeStorageProblem): Problem {
         let sessionList: Session[] = this.getSessionListFromChromeProblem(csProblem);
         return new Problem(csProblem[Constants.STORAGE_PROBLEM_CODE], 

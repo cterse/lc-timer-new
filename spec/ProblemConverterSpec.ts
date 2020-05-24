@@ -1,20 +1,39 @@
+import { ProblemCollection } from "../content-scripts/ProblemCollection";
 import { ProblemConverter } from "../content-scripts/ProblemConverter";
 import { Constants } from "../content-scripts/Constants";
-import { ChromeStorageSession, ChromeStorageProblem } from "../content-scripts/ChromeStorageTypes";
+import { ChromeStorageSession, ChromeStorageProblem, ChromeStorageResult, ChromeStorageProblemCollection } from "../content-scripts/ChromeStorageTypes";
 import { Session } from "../content-scripts/Session";
 import { Problem } from "../content-scripts/Problem";
 
 describe('Problem Converter Test Suite', () => {
     var convert = new ProblemConverter();
+    var csSession1: ChromeStorageSession = null, csSession2: ChromeStorageSession = null;
+    var csProblem: ChromeStorageProblem = null;
+    var problem: Problem = null;
+    var session1: Session = null, session2: Session = null;
+
+    beforeEach(() => {
+        csSession1 = {[Constants.STORAGE_SESSION_ID]: '1-1', [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_CREATED};
+        csSession2 = {[Constants.STORAGE_SESSION_ID]: '1-2', [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_CREATED};
+
+        csProblem = {
+            [Constants.STORAGE_PROBLEM_CODE]: 1,
+            [Constants.STORAGE_PROBLEM_NAME]: 'test',
+            [Constants.STORAGE_PROBLEM_URL]: 'https://www.google.com',
+            [Constants.STORAGE_PROBLEM_SESSION_LIST]: []
+        };
+
+        problem = new Problem(1, 'test', new URL('https://www.google.com'), []);
+
+        session1 = new Session('1-1');
+        session2 = new Session('1-2');
+    });
 
     describe('problemToChromeStorageProblem() method', () => {
         it('should convert a Problem object to ChromStorageProblem object', () => {
-            let p = new Problem(1, 'test', new URL('https://www.google.com'), [new Session('1-1'), new Session('1-2')]);
-            let csSession1: ChromeStorageSession = {[Constants.STORAGE_SESSION_ID]: '1-1', [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_CREATED};
-            let csSession2: ChromeStorageSession = {[Constants.STORAGE_SESSION_ID]: '1-2', [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_CREATED};
-            spyOn(convert, 'sessionToChromeStorageSession').and.returnValues(csSession1, csSession2);
+            problem.setSesstionList([session1, session2]);
 
-            let csProblem = convert.problemToChromeStorageProblem(p);
+            let csProblem = convert.problemToChromeStorageProblem(problem);
 
             expect(csProblem[Constants.STORAGE_PROBLEM_CODE]).toBe(1);
             expect(csProblem[Constants.STORAGE_PROBLEM_NAME]).toBe('test');
@@ -28,15 +47,7 @@ describe('Problem Converter Test Suite', () => {
 
     describe('chromeStorageProblemToProblem() method', () => {
         it('should create a Problem object from the provided ChromStorageProblem object', () => {
-            let csSession1: ChromeStorageSession = {[Constants.STORAGE_SESSION_ID]: '1-1', [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_CREATED};
-            let csSession2: ChromeStorageSession = {[Constants.STORAGE_SESSION_ID]: '1-2', [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_CREATED};
-            let csProblem: ChromeStorageProblem = {
-                [Constants.STORAGE_PROBLEM_CODE]: 1,
-                [Constants.STORAGE_PROBLEM_NAME]: 'test',
-                [Constants.STORAGE_PROBLEM_URL]: 'https://www.google.com',
-                [Constants.STORAGE_PROBLEM_SESSION_LIST]: [csSession1, csSession2]
-            };
-            spyOn(convert, 'chromeStorageSessionToSession').and.returnValues(new Session('1-1'), new Session('1-2'));
+            csProblem[Constants.STORAGE_PROBLEM_SESSION_LIST] = [csSession1, csSession2];
 
             let problem: Problem = convert.chromeStorageProblemToProblem(csProblem);
 
@@ -55,14 +66,10 @@ describe('Problem Converter Test Suite', () => {
         it('should convert the given ChromeStorageSession object to Session object', () => {
             let initTs = Date.now();
             let endTs = Date.now() + 10000;
-            let csSession = {
-                [Constants.STORAGE_SESSION_ID]: '1-1',
-                [Constants.STORAGE_SESSION_STATUS]: Constants.SESSION_STATUS_COMPLETE,
-                [Constants.STORAGE_SESSION_INIT_TS]: initTs,
-                [Constants.STORAGE_SESSION_END_TS]: endTs
-            };
+            csSession1[Constants.STORAGE_SESSION_INIT_TS] = initTs;
+            csSession1[Constants.STORAGE_SESSION_END_TS] = endTs;
 
-            let session = convert.chromeStorageSessionToSession(csSession);
+            let session = convert.chromeStorageSessionToSession(csSession1);
 
             expect(session.getId()).toBe('1-1');
             expect(session.getStatus()).toBe(Constants.SESSION_STATUS_COMPLETE);
@@ -94,7 +101,31 @@ describe('Problem Converter Test Suite', () => {
         });
     });
 
-    describe('chromeCollectionToProblemCollection() method', () => {});
+    describe('chromeCollectionToProblemCollection() method', () => {
+        it('should return a ProblemCollection object with a map of problems in the provided ChromeResult object', () => {
+            csProblem[Constants.STORAGE_PROBLEM_SESSION_LIST] = [csSession1, csSession2];
+            let chromeCollection: ChromeStorageProblemCollection = {
+                '1': csProblem, '2': csProblem
+            }
+            let problemCollectionMap: Map<number, Problem> = convert.chromeCollectionToProblemCollectionMap(chromeCollection);
 
-    describe('problemCollectionToChromeCollection() method', () => {});
+            expect(problemCollectionMap.size).toBe(1);
+            expect(problemCollectionMap.get(1)).toBeDefined();
+            expect(problemCollectionMap.get(1).getSessionList().length).toBe(2);
+        });
+    });
+
+    describe('problemCollectionToChromeCollection() method', () => {
+        it('should take an object of problemCollection and return ChromeStorageProblemCollection object', () => {
+            let pcMap = new Map<number, Problem>();
+            pcMap.set(problem.getCode(), problem);
+
+            let csProblemCollection: ChromeStorageProblemCollection = convert.problemCollectionMapToChromeCollection(pcMap);
+
+            expect(csProblemCollection['1'][Constants.STORAGE_PROBLEM_CODE]).toBe(1);
+            expect(csProblemCollection['1'][Constants.STORAGE_PROBLEM_NAME]).toBe('test');
+            expect(csProblemCollection['1'][Constants.STORAGE_PROBLEM_URL]).toBe('https://www.google.com/');
+            expect(csProblemCollection['1'][Constants.STORAGE_PROBLEM_SESSION_LIST]).toEqual([]);
+        });
+    });
 });
