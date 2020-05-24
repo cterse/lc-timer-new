@@ -4,6 +4,7 @@ import { ChromeStorageProblem, ChromeStorageSession, ChromeStorageResult } from 
 import { Session } from "./Session";
 
 export class ProblemUtils {
+    
     extractProblemHeaderTextFromContext(): string {
         try {
             return $( Constants.PROBLEM_TITLE_SELECTOR ).text();
@@ -25,12 +26,12 @@ export class ProblemUtils {
     extractProblemUrlFromContext(): URL {
         try {
             return new URL(location.href);
-        } catch(error) {
+        } catch (error) {
             throw error;
         }
     }
     
-    createProblemFromContext(): Problem | null {
+    createProblemFromContext(): Problem {
         try {
             let problemHeader = this.extractProblemHeaderTextFromContext();
             let currentProblemName = this.extractProblemNameFromProblemHeaderString(problemHeader);
@@ -38,54 +39,18 @@ export class ProblemUtils {
             let currentProblemUrl = this.extractProblemUrlFromContext();
 
             return new Problem(currentProblemCode, currentProblemName, currentProblemUrl, []);
-        } catch(error) {
-            console.error(error.message);
+        } catch (error) {
+            throw error;
         }
-        return null;
     }
 
-    getProblemNameFromStorageProblem(storageProblem: ChromeStorageProblem): string {
-        return storageProblem[Constants.STORAGE_PROBLEM_NAME];
-    }
-
-    getProblemCodeFromStorageProblem(storageProblem: ChromeStorageProblem): number {
-        return storageProblem[Constants.STORAGE_PROBLEM_CODE];
-    }
-
-    getProblemUrlFromStorageProblem(storageProblem: ChromeStorageProblem): URL {
-        return new URL(storageProblem[Constants.STORAGE_PROBLEM_URL]);
-    }
-
-    getProblemSessionListFromStorageProblem(storageProblem: ChromeStorageProblem): Array<Session> {
-        let storageSessionList = storageProblem[Constants.STORAGE_PROBLEM_SESSION_LIST];
-        return storageSessionList.map(this.getSessionFromStorageSession);
-    }
-
-    getSessionFromStorageSession(storageSession: ChromeStorageSession): Session {
-        let sId = storageSession[Constants.STORAGE_SESSION_ID];
-        let sInitTimestamp = storageSession[Constants.STORAGE_SESSION_INIT_TS];
-        let sEndTimestamp = storageSession[Constants.STORAGE_SESSION_END_TS];
-        
-        return new Session(storageSession[Constants.STORAGE_SESSION_ID], sInitTimestamp, sEndTimestamp);
-    }
-
-    contructProblemsMapFromChromeResult(storageResult: ChromeStorageResult): Map<number, Problem> {
-        let chromeCollectionObject = storageResult[Constants.STORAGE_PROBLEM_COLLECTION];
-        let pcObject = new Map<number, Problem>();
-
-        for (let key in chromeCollectionObject) {
-            if (!chromeCollectionObject.hasOwnProperty(key)) continue;
-
-            let storageProblem = chromeCollectionObject[key];
-            let code = this.getProblemCodeFromStorageProblem(storageProblem);
-            let name = this.getProblemNameFromStorageProblem(storageProblem);
-            let url = this.getProblemUrlFromStorageProblem(storageProblem);
-            let sessionsList = this.getProblemSessionListFromStorageProblem(storageProblem);
-            let problem = new Problem(code, name, url, sessionsList);
-
-            pcObject.set(problem.getCode(), problem);
-        }
-
-        return pcObject;
-    }
+    createChromeStorageSession(id: string, status: string, initTs?: number, endTs?: number) {
+        return {
+            [Constants.STORAGE_SESSION_ID]: id,
+            [Constants.STORAGE_SESSION_STATUS]: status,
+            [Constants.STORAGE_SESSION_INIT_TS]: initTs,
+            [Constants.STORAGE_SESSION_END_TS]: endTs
+        };
+    }    
+    
 }

@@ -1,5 +1,6 @@
 import { Constants } from "./Constants";
 import { Problem } from "./Problem";
+import { ChromeStorageSession } from "./ChromeStorageTypes";
 
 export class Session {
     private id: string;
@@ -56,4 +57,9 @@ export class Session {
         return this.status;
     }
 
+    getChromeSession(): ChromeStorageSession {
+        
+
+        return null;
+    }
 }

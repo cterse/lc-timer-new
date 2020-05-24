@@ -16,9 +16,9 @@ export interface ChromeStorageProblem {
 }
 
 export interface ChromeStorageProblemCollection {
-    [key: string]: ChromeStorageProblem
+    [key: string]: any;
 }
 
 export interface ChromeStorageResult {
-    [Constants.STORAGE_PROBLEM_COLLECTION]: ChromeStorageProblemCollection;
+    [Constants.STORAGE_PROBLEM_COLLECTION]?: ChromeStorageProblemCollection;
 }

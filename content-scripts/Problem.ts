@@ -1,6 +1,7 @@
 import { Session } from "./Session";
 import { Constants } from "./Constants";
 import { ProblemUtils } from "./ProblemUtils";
+import { ChromeStorageProblem, ChromeStorageSession } from "./ChromeStorageTypes";
 
 export class Problem {
     private code: number;
@@ -76,4 +77,22 @@ export class Problem {
     isActive(): boolean {
         return this.getStatus() === Constants.PROBLEM_STATUS_ACTIVE;
     }
+
+    getChromeProblem(): ChromeStorageProblem {
+        
+
+        return null;
+    }
+
+    private getChromeSessionList(sessionsList: Session[]): ChromeStorageSession[] {
+        let csSessionList: ChromeStorageSession[] = [];
+
+        sessionsList.forEach(session => {
+            csSessionList.push(session.getChromeSession());
+        });
+
+        return csSessionList;
+    }
+
+    
 }

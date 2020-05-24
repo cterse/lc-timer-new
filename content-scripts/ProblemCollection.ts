@@ -1,7 +1,7 @@
 import { Problem } from "./Problem";
 import { Constants } from "./Constants";
 import { Session } from "./Session";
-import { ChromeStorageResult, ChromeStorageProblem } from "./ChromeStorageTypes";
+import { ChromeStorageResult, ChromeStorageProblem, ChromeStorageProblemCollection, ChromeStorageSession } from "./ChromeStorageTypes";
 import { ProblemUtils } from "./ProblemUtils";
 
 export class ProblemCollection {
@@ -14,8 +14,6 @@ export class ProblemCollection {
         this.problemCollectionObject = storageResult ? this.contructProblemsMapFromChromeResult(storageResult) : new Map<number, Problem>();
         this.updateProblemCount();
     }
-
-    
 
     getProblemCollectionObject(): Map<number, Problem> {
         return this.problemCollectionObject;
@@ -70,6 +68,33 @@ export class ProblemCollection {
     getTotalProblemCount(): number {
         this.updateProblemCount();
         return this.totalProblemCount;
+    }
+
+    getChromeStorageCollection(): ChromeStorageProblemCollection {
+        let csCollection: ChromeStorageProblemCollection = {};
+        let problemUtils = new ProblemUtils();
+
+        for (let problem of this.problemCollectionObject.values()) {
+            csCollection[problem.getCode()] = problem.getChromeProblem();
+        }
+
+        return csCollection;
+    }
+
+    private contructProblemsMapFromChromeResult(storageResult: ChromeStorageResult): Map<number, Problem> {
+        let chromeCollectionObject = storageResult[Constants.STORAGE_PROBLEM_COLLECTION];
+        let pcObject = new Map<number, Problem>();
+
+        for (let key in chromeCollectionObject) {
+            if (!chromeCollectionObject.hasOwnProperty(key)) continue;
+
+            let storageProblem = chromeCollectionObject[key];
+            let problem = storageProblem.getProblem();
+
+            pcObject.set(problem.getCode(), problem);
+        }
+
+        return pcObject;
     }
 }
 
