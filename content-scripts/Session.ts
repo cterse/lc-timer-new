@@ -57,9 +57,4 @@ export class Session {
         return this.status;
     }
 
-    getChromeSession(): ChromeStorageSession {
-        
-
-        return null;
-    }
 }

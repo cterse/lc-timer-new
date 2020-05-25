@@ -59,7 +59,7 @@ export class Problem {
         return this;
     }
 
-    complete(endTimestamp: number = Date.now()): Problem {
+    complete(endTimestamp: number = Date.now()): Problem | never {
         if (this.getStatus() !== Constants.PROBLEM_STATUS_ACTIVE) throw new Error("Attempt to complete a " + this.getStatus() + " problem");
         let completedSession = this.getLatestSession()?.complete(endTimestamp) ?? undefined;
         if (!completedSession) throw new Error("Problem session list empty");
@@ -82,22 +82,5 @@ export class Problem {
     isActive(): boolean {
         return this.getStatus() === Constants.PROBLEM_STATUS_ACTIVE;
     }
-
-    getChromeProblem(): ChromeStorageProblem {
-        
-
-        return null;
-    }
-
-    private getChromeSessionList(sessionsList: Session[]): ChromeStorageSession[] {
-        let csSessionList: ChromeStorageSession[] = [];
-
-        sessionsList.forEach(session => {
-            csSessionList.push(session.getChromeSession());
-        });
-
-        return csSessionList;
-    }
-
     
 }

@@ -18,7 +18,7 @@ export class ProblemCollection {
         }
     }
 
-    getProblemCollectionObject(): Map<number, Problem> {
+    getProblemCollectionMap(): Map<number, Problem> {
         return this.problemCollectionMap;
     }
 
@@ -57,10 +57,18 @@ export class ProblemCollection {
         return completeCount;
     }
 
+    getNewProblemCount(): number {
+        let newCount = 0;
+
+        for (let problem of this.problemCollectionMap.values()) {
+            if (problem.getStatus() === Constants.PROBLEM_STATUS_CREATED) newCount++;
+        }
+
+        return newCount;
+    }
+
     getTotalProblemCount(): number {
         return this.problemCollectionMap.size;
     }
 
 }
-
-
