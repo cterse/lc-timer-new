@@ -34,10 +34,10 @@ module.exports = env => {
     };
     
     var contentConfig = {
-        entry: {
-            problemLoad: path.resolve(__dirname, 'content-scripts', 'NewProblemContentScript.ts'),
-            // problemSubmit: 'SubmitProblemContentScript.ts',
-        },
+        entry: [
+            path.resolve(__dirname, 'content-scripts', 'NewProblemContentScript.ts'),
+            path.resolve(__dirname, 'content-scripts', 'SubmitProblemContentScript.ts'),
+        ],
         output: {
             filename: 'content.js',
             path: path.resolve(__dirname, 'dist'),

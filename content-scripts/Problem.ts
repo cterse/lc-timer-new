@@ -38,7 +38,7 @@ export class Problem {
     }
 
     start(startTimestamp: number = Date.now()): Problem {
-        if (this.getStatus() !== Constants.PROBLEM_STATUS_CREATED) throw new Error("Attempt to start a " + this.getStatus() + " problem");
+        if (this.isActive()) throw new Error("Attempt to start an already active problem");
         
         return this.startNewSession(startTimestamp);
     }
@@ -60,7 +60,7 @@ export class Problem {
     }
 
     complete(endTimestamp: number = Date.now()): Problem | never {
-        if (this.getStatus() !== Constants.PROBLEM_STATUS_ACTIVE) throw new Error("Attempt to complete a " + this.getStatus() + " problem");
+        if (!this.isActive()) throw new Error("Attempt to complete a " + this.getStatus() + " problem");
         let completedSession = this.getLatestSession()?.complete(endTimestamp) ?? undefined;
         if (!completedSession) throw new Error("Problem session list empty");
         

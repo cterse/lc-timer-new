@@ -50,7 +50,6 @@ function setupMonitoringScript() {
                     let csStorageCollection = converter.problemCollectionMapToChromeCollection(problemsCollection.getProblemCollectionMap());
                     chrome.storage.sync.set({[Constants.STORAGE_PROBLEM_COLLECTION]:  csStorageCollection}, function(){
                         console.debug("lc-timer:problem-content : set data to storage.");
-                        console.dir(csStorageCollection);
                     });
                 }
             } catch (error) {
